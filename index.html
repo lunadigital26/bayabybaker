@@ -176,6 +176,14 @@ body.owner .social{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 .revphoto figcaption{position:absolute;left:12px;right:12px;bottom:12px;background:color-mix(in srgb,var(--surface) 90%,transparent);border-radius:14px;padding:10px 14px;font-weight:800;font-size:14px;color:var(--ink)}
 .revphoto figcaption span{display:block;font-weight:600;font-size:12px;color:var(--muted)}
 @media (max-width:600px){.revphoto{grid-row:auto;min-height:420px}}
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:28px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:28px}
+.contact h2{font-size:clamp(32px,4.4vw,46px)}
+.contact .side p{color:var(--muted);margin:10px 0 16px;max-width:40ch}
+.contact .side ul{list-style:none;padding:0;margin:0;display:grid;gap:8px;font-weight:700}
+.contact .side a{color:var(--ink)}
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.cstatus{border-radius:12px;padding:10px 14px;font-weight:700;font-size:14px;background:var(--soft)}
+@media (max-width:720px){.contact{grid-template-columns:1fr;padding:20px}}
 .howgrid{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:28px;align-items:center}
 .howgrid .steps{grid-template-columns:1fr}
 @media (max-width:720px){.howgrid{grid-template-columns:1fr}.howgrid .arch{max-width:280px;justify-self:center}}
@@ -351,7 +359,7 @@ body.owner{padding-bottom:70px}
 <template id="shell">
 <header class="top"><div class="wrap">
   <a class="brand" href="#shop" id="brand"></a>
-  <nav class="links"><a href="#combos">Trio offers</a><a href="#shop">Shop</a><a href="#reviews">Reviews</a><a href="#insta">Instagram</a><a href="#how">How to order</a></nav>
+  <nav class="links"><a href="#combos">Trio offers</a><a href="#shop">Shop</a><a href="#reviews">Reviews</a><a href="#insta">Instagram</a><a href="#how">How to order</a><a href="#contact">Contact</a></nav>
   <button class="iconbtn" id="soundBtn" type="button" aria-label="Sound on"></button>
 </div></header>
 <main>
@@ -401,6 +409,19 @@ body.owner{padding-bottom:70px}
   </div></section>
   <section id="ask"><div class="wrap"><div class="ask"><div class="arch" id="askImg"></div><div><span class="eyebrow">Before you order</span><h2>Want to see it <em>move</em>?</h2><p>Ask for a short video of any piece on a real person. We reply on WhatsApp, usually the same day.</p><a class="btn btn-wa" id="askWa" target="_blank" rel="noopener">Chat on WhatsApp</a></div></div></div></section>
 </main>
+<section id="contact"><div class="wrap"><div class="contact">
+  <div class="side"><span class="eyebrow">Questions or custom orders</span><h2>Talk to <em>us</em></h2>
+    <p>Ask about sizing, a colour you can't see, delivery, or reserving a piece. We reply by WhatsApp or email.</p>
+    <ul><li>WhatsApp: <a id="cWaLink" target="_blank" rel="noopener"></a></li><li>Email: <span id="cMailTxt"></span></li></ul></div>
+  <form class="f" id="contactForm" novalidate>
+    <div class="two"><label for="ctName">Your name<input id="ctName" autocomplete="name" required></label><label for="ctPhone">Phone / WhatsApp<input id="ctPhone" inputmode="tel" autocomplete="tel" placeholder="07xx xxx xxx"></label></div>
+    <div class="two"><label for="ctEmail">Email (optional)<input id="ctEmail" type="email" autocomplete="email"></label><label for="ctTopic">About<select id="ctTopic"><option>A piece I want to order</option><option>Sizing and fit</option><option>Delivery</option><option>An order I already placed</option><option>Wholesale or bulk</option><option>Something else</option></select></label></div>
+    <label for="ctMsg">Message<textarea id="ctMsg" rows="4" required placeholder="e.g. Is the Lace Abaya Set available in burgundy, length 56?"></textarea></label>
+    <label class="hp" aria-hidden="true">Company<input id="ctCompany" tabindex="-1" autocomplete="off"></label>
+    <div class="cstatus" id="ctStatus" hidden aria-live="polite"></div>
+    <button type="submit" class="btn btn-primary" id="ctSend" style="justify-self:start">Send message</button>
+  </form>
+</div></div></section>
 <footer><div class="wrap">
   <div><strong id="footName"></strong><br>Online abaya boutique · Kampala, Uganda</div>
   <div>WhatsApp: <a id="footWa" target="_blank" rel="noopener"></a><br><span id="footEmail"></span></div>
@@ -529,6 +550,7 @@ function renderBrand(){
   img('#howImg',s.side,'Woman in a white hijab and pleated top');img('#askImg',s.cta,'Woman adjusting her hijab');
   $('#offer').style.setProperty('--banner',s.banner?'url("'+s.banner+'")':'none');
   $('#askWa').href='https://wa.me/'+s.whatsapp+'?text='+encodeURIComponent('Assalamu alaikum '+s.name+', can I see a video of ');
+  var cw=$('#cWaLink');if(cw){cw.href='https://wa.me/'+s.whatsapp;cw.textContent='+'+s.whatsapp;$('#cMailTxt').textContent=s.email||'orders@bayabybaker.com'}
   $('#footName').innerHTML=s.logoFull?'<img class="flogo" src="'+esc(s.logoFull)+'" alt="'+esc(s.name)+'">':esc(s.name);
   var wa=$('#footWa');wa.textContent='+'+s.whatsapp;wa.href='https://wa.me/'+s.whatsapp;
   $('#footEmail').innerHTML=(s.email?'Email: '+esc(s.email)+'<br>':'')+(state.insta&&state.insta.handle?'Instagram: <a target="_blank" rel="noopener" href="https://www.instagram.com/'+encodeURIComponent(state.insta.handle)+'/">@'+esc(state.insta.handle)+'</a>':'')+(s.tiktok?'<br>TikTok: <a target="_blank" rel="noopener" href="https://www.tiktok.com/@'+encodeURIComponent(s.tiktok)+'">@'+esc(s.tiktok)+'</a>':'');
@@ -1027,6 +1049,24 @@ document.addEventListener('click',function(e){
   else if(t.id==='qopen'){setQuoteMin(false)}
 });
 document.addEventListener('click',function(e){var w=$('#social');if(w&&w.classList.contains('open')&&!w.contains(e.target)){w.classList.remove('open');$('#sbub').setAttribute('aria-expanded','false')}});
+root.addEventListener('submit',function(e){
+  if(e.target.id!=='contactForm')return;e.preventDefault();
+  var f=e.target,st=$('#ctStatus',f),btn=$('#ctSend',f),v=function(id){return $('#'+id,f).value.trim()};
+  var name=v('ctName'),phone=v('ctPhone'),email=v('ctEmail'),msg=v('ctMsg');
+  st.hidden=false;
+  if(!name||!msg){st.textContent='Add your name and a message.';return}
+  if(!phone&&!email){st.textContent='Add a phone number or an email so we can reply.';return}
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){st.textContent='Check the email address.';return}
+  if(v('ctCompany')){st.textContent='Thank you, message sent.';f.reset();return}
+  var s=state.settings,live=s.orderEndpoint&&location.protocol==='https:'&&!/claude|anthropic/.test(location.hostname);
+  var text='Hi '+s.name+', '+msg+'\n\n'+name+(phone?' · '+phone:'');
+  if(!live){st.innerHTML='Messages send from www.bayabybaker.com. Here you can <a target="_blank" rel="noopener" href="https://wa.me/'+s.whatsapp+'?text='+encodeURIComponent(text)+'">send it on WhatsApp</a> instead.';return}
+  btn.disabled=true;st.textContent='Sending…';
+  fetch(s.orderEndpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({Type:'contact',Name:name,Phone:phone,Email:email,Topic:v('ctTopic'),Message:msg,Company:v('ctCompany')})})
+  .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return r.ok&&j.success===true})})
+  .then(function(ok){btn.disabled=false;if(ok){st.innerHTML='<strong>✓ Message sent.</strong> We\'ll reply soon, in shā’ Allāh.';f.reset();sound('chime')}else st.innerHTML='We couldn\'t send that right now. Please <a target="_blank" rel="noopener" href="https://wa.me/'+s.whatsapp+'?text='+encodeURIComponent(text)+'">message us on WhatsApp</a>.'})
+  .catch(function(){btn.disabled=false;st.innerHTML='We couldn\'t send that right now. Please <a target="_blank" rel="noopener" href="https://wa.me/'+s.whatsapp+'?text='+encodeURIComponent(text)+'">message us on WhatsApp</a>.'});
+});
 root.addEventListener('change',function(e){if(e.target.id==='sortSel'){ui.sort=e.target.value;renderGrid()}});
 window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});
 
