@@ -184,6 +184,8 @@ body.owner .social{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
 .cstatus{border-radius:12px;padding:10px 14px;font-weight:700;font-size:14px;background:var(--soft)}
 @media (max-width:720px){.contact{grid-template-columns:1fr;padding:20px}}
+.rname{font-family:var(--display);font-size:24px;font-weight:600;color:var(--ink)}
+.rev .row .extag{align-self:center}
 .howgrid{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:28px;align-items:center}
 .howgrid .steps{grid-template-columns:1fr}
 @media (max-width:720px){.howgrid{grid-template-columns:1fr}.howgrid .arch{max-width:280px;justify-self:center}}
@@ -632,7 +634,7 @@ function renderReviews(){
   if(!r.length){$('#revsum').innerHTML='';$('#revs').innerHTML='<div class="empty">Reviews from Google will appear here.</div>';return}
   var avg=r.reduce(function(a,x){return a+Number(x.rating)},0)/r.length;
   $('#revsum').innerHTML='<strong class="num">'+avg.toFixed(1)+'</strong><div><div class="stars">'+stars(Math.round(avg))+'</div><small class="meta num">'+r.length+' review'+(r.length>1?'s':'')+(r.some(function(x){return x.example})?' · examples shown until real Google reviews are added':'')+'</small></div>';
-  $('#revs').innerHTML=(s.reviewPhoto?'<figure class="rev revphoto" style="margin:0"><img loading="lazy" src="'+esc(s.reviewPhoto)+'" alt="Two Baya By Baker clients in polka dot abayas holding gift bags"><figcaption>Real clients, real orders<span>Polka Dot Abaya in brown and cream</span></figcaption></figure>':'')+r.map(function(x){return '<div class="rev">'+(x.example?'<span class="extag">Example</span>':'')+'<div class="stars">'+stars(x.rating)+'</div><p>'+esc(x.text)+'</p><small>'+esc(x.name)+' · '+esc(x.date)+(x.example?'':' · via Google')+'</small></div>'}).join('');
+  $('#revs').innerHTML=(s.reviewPhoto?'<figure class="rev revphoto" style="margin:0"><img loading="lazy" src="'+esc(s.reviewPhoto)+'" alt="Two Baya By Baker clients in polka dot abayas holding gift bags"><figcaption>Real clients, real orders<span>Polka Dot Abaya in brown and cream</span></figcaption></figure>':'')+r.map(function(x){return '<div class="rev"><div class="row"><strong class="rname">'+esc(x.name)+'</strong>'+(x.example?'<span class="extag">Example</span>':'')+'</div><div class="stars">'+stars(x.rating)+'</div><p>'+esc(x.text)+'</p><small>'+esc(x.date)+(x.example?'':' · via Google')+'</small></div>'}).join('');
 }
 
 /* basket widget */
