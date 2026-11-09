@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /order.php
+Sitemap: https://www.bayabybaker.com/sitemap.xml
