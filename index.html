@@ -229,6 +229,21 @@ body.owner .social{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 @keyframes floatup{0%{transform:translateY(10px) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-70px) scale(1.1);opacity:0}}
 @media (prefers-reduced-motion:reduce){.celcard,.bagbody,.armL,.armR,.eye,.heart{animation:none}.heart{opacity:1}}
+.about{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:48px;align-items:center}
+.abpics{position:relative;max-width:440px;width:100%;justify-self:center}
+.abpics .arch{aspect-ratio:4/5;box-shadow:0 30px 60px var(--shadow)}
+.abinset{position:absolute;right:-18px;bottom:-22px;width:42%;aspect-ratio:3/4;border-radius:50% 50% 16px 16px / 36% 36% 16px 16px;overflow:hidden;border:6px solid var(--bg);box-shadow:0 18px 40px var(--shadow)}
+.abinset img{width:100%;height:100%;object-fit:cover;display:block}
+.abtext h2{font-size:clamp(36px,5vw,56px);margin:8px 0 18px}
+.abtext p{font-size:17px;max-width:56ch;margin:0 0 14px}
+.abquote{font-family:var(--display);font-style:italic;font-size:clamp(22px,2.6vw,28px);line-height:1.3;color:var(--ink);border-left:3px solid var(--accent);padding-left:18px;margin:22px 0}
+.abvals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:24px 0 18px}
+.abval{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.abval b{display:block;font-family:var(--display);font-size:24px;font-weight:600;color:var(--brand)}
+.abval span{font-size:13px;color:var(--muted)}
+.absign{font-family:var(--display);font-style:italic;font-size:26px;color:var(--accent)}
+.absign small{display:block;font-family:var(--body);font-style:normal;font-size:13px;color:var(--muted);letter-spacing:.06em}
+@media (max-width:860px){.about{grid-template-columns:1fr;gap:40px}.abinset{right:-6px}.abvals{grid-template-columns:1fr}}
 .howgrid{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:28px;align-items:center}
 .howgrid .steps{grid-template-columns:1fr}
 @media (max-width:720px){.howgrid{grid-template-columns:1fr}.howgrid .arch{max-width:280px;justify-self:center}}
@@ -416,7 +431,7 @@ body.owner{padding-bottom:70px}
 <template id="shell">
 <header class="top"><div class="wrap">
   <a class="brand" href="/" id="brand" aria-label="Baya By Baker home"></a>
-  <nav class="links"><a href="#combos">Trio offers</a><a href="#shop">Shop</a><a href="#reviews">Reviews</a><a href="#insta">Instagram</a><a href="#how">How to order</a><a href="#contact">Contact</a></nav>
+  <nav class="links"><a href="#about">About</a><a href="#combos">Trio offers</a><a href="#shop">Shop</a><a href="#reviews">Reviews</a><a href="#insta">Instagram</a><a href="#how">How to order</a><a href="#contact">Contact</a></nav>
   <button class="iconbtn" id="soundBtn" type="button" aria-label="Sound on"></button>
 </div></header>
 <main>
@@ -456,6 +471,21 @@ body.owner{padding-bottom:70px}
     <div class="sechead"><h2>On our <em>Instagram</em></h2><div class="row"><a class="btn btn-ghost btn-sm" id="ttBtn" target="_blank" rel="noopener" hidden>TikTok</a><a class="btn btn-ghost btn-sm" id="igBtn" target="_blank" rel="noopener">Follow</a></div></div>
     <div class="igrid" id="igGrid"></div>
   </div></section>
+  <section id="about"><div class="wrap"><div class="about">
+    <div class="abpics"><div class="arch" id="abMain"></div><div class="abinset" id="abInset"></div></div>
+    <div class="abtext"><span class="eyebrow">Our story</span>
+      <h2>Modesty is <em>beauty</em></h2>
+      <p>I'm Shadia Baker, and Baya By Baker is my love letter to modest dressing.</p>
+      <p class="abquote">“To me, an abaya isn't only part of being a Muslim woman. It's fashion, our own culture of style, worn with faith and pride.”</p>
+      <p>It started with bringing abayas home from Dubai for friends, and soon everyone wanted one. Today every piece is still hand-picked in Dubai, Turkey and the Gulf, then brought home to Kampala for women who wear their faith with grace.</p>
+      <div class="abvals">
+        <div class="abval"><b>Aura</b><span>The quiet confidence you carry when you feel beautiful and covered.</span></div>
+        <div class="abval"><b>Modest</b><span>Full coverage and flowing cuts, in lengths from 52" to 60".</span></div>
+        <div class="abval"><b>Luxe</b><span>Lace, pearls and fabrics chosen by hand so every piece feels special.</span></div>
+      </div>
+      <div class="absign">With love, Shadia<small>Founder, Baya By Baker</small></div>
+    </div>
+  </div></div></section>
   <section id="how"><div class="wrap">
     <div class="sechead"><h2>How ordering <em>works</em></h2></div>
     <div class="howgrid"><div class="arch" id="howImg"></div><div class="steps">
@@ -487,7 +517,7 @@ body.owner{padding-bottom:70px}
 </div></div></section>
 <footer><div class="wrap fgrid">
   <div class="fbrand"><div id="footName"></div><p>Aura · Modest · Luxe<br>Online abaya boutique, Kampala, Uganda</p></div>
-  <nav class="fcol" aria-label="Shop"><h4>Shop</h4><a href="#shop">All pieces</a><a href="#combos">Trio offers</a><a href="#reviews">Reviews</a><a href="#how">How to order</a></nav>
+  <nav class="fcol" aria-label="Shop"><h4>Shop</h4><a href="#about">Our story</a><a href="#shop">All pieces</a><a href="#combos">Trio offers</a><a href="#reviews">Reviews</a><a href="#how">How to order</a></nav>
   <div class="fcol"><h4>Get in touch</h4><a id="footWa" target="_blank" rel="noopener"></a><span id="footEmail"></span></div>
 </div><div class="wrap fbar"><span>© <span id="fyear"></span> Baya By Baker</span><span><a href="privacy.html">Privacy</a> · <button type="button" class="linkbtn" id="cookieSettings">Cookie settings</button></span></div></footer>
 <div class="social" id="social" hidden>
@@ -612,6 +642,8 @@ function renderBrand(){
   $('#heroArch').innerHTML=s.heroVideo?'<video src="'+esc(s.heroVideo)+'" poster="'+esc(s.heroPoster||s.hero||'')+'" autoplay muted loop playsinline preload="auto" aria-label="Model wearing an embellished '+esc(s.name)+' abaya"></video>':s.hero?'<img src="'+esc(s.hero)+'" alt="Model wearing a '+esc(s.name)+' abaya">':(s.logoFull?'<div class="heromark"><img src="'+esc(s.logoFull)+'" alt=""></div>':'<img src="'+ph('#c2577a')+'" alt="">')+(isOwner?'<div class="heroempty">Add your hero photo in Manage shop → Settings</div>':'');
   var img=function(id,src,alt){var el=$(id);if(el){el.hidden=!src;el.innerHTML=src?'<img src="'+esc(src)+'" alt="'+esc(alt||'')+'">':''}};
   if(reduce){var hv=$('#heroArch video');if(hv){hv.removeAttribute('autoplay');try{hv.pause()}catch(e){}}}
+  var gpic=function(id,i){var p=byId(id),g=p&&gal(p);return g&&g[i]?g[i].img:''};
+  img('#abMain',gpic('b4',0),'Three Baya By Baker clients in striped lilac and blue abayas');img('#abInset',gpic('b2',0),'Cream polka dot abaya with black lace on the rail');
   img('#howImg',s.side,'Woman in a white hijab and pleated top');img('#askImg',s.cta,'Woman adjusting her hijab');
   $('#offer').style.setProperty('--banner',s.banner?'url("'+s.banner+'")':'none');
   $('#askWa').href='https://wa.me/'+s.whatsapp+'?text='+encodeURIComponent('Assalamu alaikum '+s.name+', can I see a video of ');
