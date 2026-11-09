@@ -191,6 +191,27 @@ body.owner .social{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 .consent p{margin:0;color:var(--muted)}
 .consent a{color:var(--ink)}
 .consent .row{justify-content:flex-end}
+.celebrate{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(3px);animation:celfade .3s ease}
+.celebrate canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.celcard{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:22px 26px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 30px 70px var(--shadow);animation:celpop .55s cubic-bezier(.3,1.6,.5,1)}
+.celcard svg{width:150px;height:auto;display:block;margin:-70px auto 4px;overflow:visible}
+.celcard h2{font-size:34px;margin:4px 0 2px}
+.celcard p{margin:6px 0 16px;color:var(--muted)}
+.celcard .ref{font-weight:800;color:var(--ink)}
+.bagbody{transform-origin:75px 150px;animation:bagbob 1.1s ease-in-out infinite}
+.armL{transform-origin:22px 92px;animation:waveL .5s ease-in-out infinite alternate}
+.armR{transform-origin:128px 92px;animation:waveR .5s ease-in-out infinite alternate}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 3s infinite}
+.heart{animation:floatup 2.4s ease-in infinite;opacity:0}
+.heart.h2{animation-delay:.8s}.heart.h3{animation-delay:1.6s}
+@keyframes celfade{from{opacity:0}}
+@keyframes celpop{from{transform:scale(.6) translateY(30px);opacity:0}}
+@keyframes bagbob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+@keyframes waveL{from{transform:rotate(10deg)}to{transform:rotate(-35deg)}}
+@keyframes waveR{from{transform:rotate(-10deg)}to{transform:rotate(35deg)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes floatup{0%{transform:translateY(10px) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-70px) scale(1.1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.celcard,.bagbody,.armL,.armR,.eye,.heart{animation:none}.heart{opacity:1}}
 .howgrid{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:28px;align-items:center}
 .howgrid .steps{grid-template-columns:1fr}
 @media (max-width:720px){.howgrid{grid-template-columns:1fr}.howgrid .arch{max-width:280px;justify-self:center}}
@@ -741,7 +762,7 @@ function openProduct(id){
 }
 function quickAdd(id,btn){
   var p=byId(id),before=totals().won;
-  if(!addLine(id,p.sizes[0]||null,1)){toast('Only '+p.qty+' in stock');return}
+  if(!addLine(id,p.sizes[0]||null,1,gal(p)?gal(p)[0].label:'')){toast('Only '+p.qty+' in stock');return}
   var arch=btn.closest('.arch');
   flyTo(arch,imgOf(p)).then(function(){afterAdd(before)});
 }
@@ -835,10 +856,52 @@ function sendOrderEmail(d,ref,c,msg){
   .then(function(ok){box.innerHTML=ok?'<strong>✓ Order received by email.</strong> We\'ll confirm on WhatsApp. Sending it there too gets you a faster reply.':'We couldn\'t send your order automatically. Please send it on WhatsApp below.'})
   .catch(function(){box.textContent='We couldn\'t send your order automatically. Please send it on WhatsApp below.'});
 }
+function celebrate(name,ref){
+  var s=state.settings,first=(name||'').trim().split(/\s+/)[0]||'sister';
+  var mark=s.logoMark?'<image href="'+esc(s.logoMark)+'" x="56" y="112" width="38" height="28" preserveAspectRatio="xMidYMid meet"/>':'';
+  var oldT=$('.toast');if(oldT)oldT.remove();
+  var o=document.createElement('div');o.className='celebrate';o.setAttribute('role','dialog');o.setAttribute('aria-label','Order placed');
+  o.innerHTML='<canvas></canvas><div class="celcard">'+
+   '<svg viewBox="0 0 150 170" aria-hidden="true">'+
+     '<g class="heart"><path d="M118 40c-4-6-13-2-10 5l10 9 10-9c3-7-6-11-10-5z" fill="#E77A9C"/></g>'+
+     '<g class="heart h2"><path d="M30 30c-3-5-11-2-9 4l9 8 9-8c2-6-6-9-9-4z" fill="#C9A35A"/></g>'+
+     '<g class="heart h3"><path d="M78 14c-3-5-10-2-8 4l8 7 8-7c2-6-5-9-8-4z" fill="#E77A9C"/></g>'+
+     '<g class="bagbody">'+
+       '<path class="armL" d="M28 96 Q10 84 8 66" stroke="#0B3324" stroke-width="7" stroke-linecap="round" fill="none"/>'+
+       '<path class="armR" d="M122 96 Q140 84 142 66" stroke="#0B3324" stroke-width="7" stroke-linecap="round" fill="none"/>'+
+       '<path d="M55 58 Q55 30 75 30 Q95 30 95 58" stroke="#E77A9C" stroke-width="7" fill="none" stroke-linecap="round"/>'+
+       '<path d="M24 58 H126 L118 150 Q117 158 109 158 H41 Q33 158 32 150 Z" fill="#FFFFFF" stroke="#0B3324" stroke-width="4" stroke-linejoin="round"/>'+
+       '<ellipse class="eye" cx="58" cy="80" rx="5" ry="6.5" fill="#0B3324"/><ellipse class="eye" cx="92" cy="80" rx="5" ry="6.5" fill="#0B3324"/>'+
+       '<circle cx="60" cy="78" r="1.6" fill="#fff"/><circle cx="94" cy="78" r="1.6" fill="#fff"/>'+
+       '<ellipse cx="47" cy="92" rx="7" ry="4.5" fill="#F3B6C7"/><ellipse cx="103" cy="92" rx="7" ry="4.5" fill="#F3B6C7"/>'+
+       '<path d="M66 90 Q75 100 84 90" stroke="#0B3324" stroke-width="3.5" fill="none" stroke-linecap="round"/>'+
+       mark+
+       '<path d="M42 150 L42 166 M108 150 L108 166" stroke="#0B3324" stroke-width="6" stroke-linecap="round"/>'+
+     '</g></svg>'+
+   '<h2>Thank you for <em>shopping</em>!</h2>'+
+   '<p>Jazakillahu khairan, '+esc(first)+' 🤍<br>Your order <span class="ref num">'+esc(ref)+'</span> is with us. Send it on WhatsApp next so we can confirm.</p>'+
+   '<button type="button" class="btn btn-primary">See my order</button></div>';
+  document.body.appendChild(o);
+  var done=false;function close(){if(done)return;done=true;o.style.transition='opacity .3s';o.style.opacity='0';setTimeout(function(){o.remove()},300)}
+  o.querySelector('button').addEventListener('click',close);o.addEventListener('click',function(e){if(e.target===o)close()});
+  setTimeout(function(){var b=o.querySelector('button');if(b)b.focus()},50);
+  if(reduce)return;
+  var cv=o.querySelector('canvas'),ctx=cv.getContext('2d'),dpr=Math.min(2,window.devicePixelRatio||1);
+  function size(){cv.width=innerWidth*dpr;cv.height=innerHeight*dpr}size();
+  var cols=['#E77A9C','#F3C6D3','#C9A35A','#0B3324','#FFFFFF','#A9D9BE'],P=[];
+  for(var i=0;i<150;i++){var left=i%2===0;P.push({x:(left?0.15:0.85)*innerWidth,y:innerHeight*0.62,vx:(left?1:-1)*(3+Math.random()*7),vy:-(9+Math.random()*9),r:4+Math.random()*5,c:cols[i%cols.length],a:Math.random()*6.28,va:(Math.random()-.5)*.3,heart:i%7===0})}
+  var t0=performance.now();
+  (function frame(now){if(done)return;var el=now-t0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,innerWidth,innerHeight);
+    P.forEach(function(p){p.vy+=.28;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.globalAlpha=Math.max(0,1-el/4200);ctx.fillStyle=p.c;
+      if(p.heart){ctx.beginPath();ctx.moveTo(0,p.r*.6);ctx.bezierCurveTo(-p.r*1.6,-p.r*.4,-p.r*.5,-p.r*1.5,0,-p.r*.5);ctx.bezierCurveTo(p.r*.5,-p.r*1.5,p.r*1.6,-p.r*.4,0,p.r*.6);ctx.fill()}
+      else ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()});
+    if(el<4300)requestAnimationFrame(frame)})(t0);
+}
 function showConfirmation(d,c){
   var ref='BB-'+Date.now().toString(36).slice(-5).toUpperCase();
   var msg=buildOrder(c,ref),s=state.settings;
   track('order',cart.map(function(l){return {id:l.id,qty:l.qty}}),totals().total);
+  celebrate(c.name,ref);
   var wa='https://wa.me/'+s.whatsapp+'?text='+encodeURIComponent(msg);
   var mail=s.email?('mailto:'+s.email+'?subject='+encodeURIComponent('Order '+ref+' – '+c.name)+'&body='+encodeURIComponent(msg)):'';
   sound('chime');
@@ -1048,7 +1111,7 @@ document.addEventListener('click',function(e){
   var t=e.target.closest('button');if(!t||!root.contains(t))return;
   if(t.dataset.cat){ui.cat=t.dataset.cat;renderFilters();renderGrid()}
   else if(t.id==='stockOnly'){ui.inStock=!ui.inStock;renderFilters();renderGrid()}
-  else if(t.dataset.quick){var qp=byId(t.dataset.quick);if(gal(qp)&&gal(qp).length>1)openProduct(qp.id);else quickAdd(t.dataset.quick,t)}
+  else if(t.dataset.quick){var qp=byId(t.dataset.quick);if(gal(qp)&&labels(gal(qp)).length>1)openProduct(qp.id);else quickAdd(t.dataset.quick,t)}
   else if(t.dataset.open){openProduct(t.dataset.open)}
   else if(t.dataset.combo){addCombo(t.dataset.combo,t)}
   else if(t.id==='basket'){openCart('bag')}
