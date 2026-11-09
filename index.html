@@ -415,7 +415,7 @@ body.owner{padding-bottom:70px}
 <body>
 <template id="shell">
 <header class="top"><div class="wrap">
-  <a class="brand" href="#shop" id="brand"></a>
+  <a class="brand" href="/" id="brand" aria-label="Baya By Baker home"></a>
   <nav class="links"><a href="#combos">Trio offers</a><a href="#shop">Shop</a><a href="#reviews">Reviews</a><a href="#insta">Instagram</a><a href="#how">How to order</a><a href="#contact">Contact</a></nav>
   <button class="iconbtn" id="soundBtn" type="button" aria-label="Sound on"></button>
 </div></header>
@@ -1221,6 +1221,10 @@ function track(name,list,value){
   try{if(w.gtag)w.gtag('event',ga,{currency:cur,value:value,items:c.map(function(x){return {item_id:x.id,item_name:x.item_name,price:x.price,quantity:x.quantity}})})}catch(e){}
 }
 document.addEventListener('click',function(e){
+  if(e.target.closest('#brand')){e.preventDefault();closeLayer();
+    if(/(^|\.)bayabybaker\.com$/.test(location.hostname)){location.href='/'}
+    else{window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}
+    return}
   var a=e.target.closest('a[href*="wa.me"]');if(a)track('whatsapp',cart.map(function(l){return {id:l.id,qty:l.qty}}));
   if(e.target.closest('#cookieSettings'))showConsent(true);
 });
