@@ -1,0 +1,7 @@
+# Never serve mail settings or hidden files
+<FilesMatch "^(\.smtp-config\.php|smtp-config.*)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

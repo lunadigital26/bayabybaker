@@ -18,8 +18,8 @@ function reply($ok, $code = 200, $msg = '') {
 //   <?php return ['host'=>'smtp.hostinger.com','port'=>465,'user'=>'orders@bayabybaker.com','pass'=>'...'];
 function smtp_config_path() {
     // Checked in order: next to public_html, the account home folder, then one level up.
-    foreach ([dirname(__DIR__), dirname(__DIR__, 3), dirname(__DIR__, 2)] as $dir) {
-        foreach (['smtp-config.php', 'smtp-config.php.txt', 'smtp-config'] as $name) {
+    foreach ([dirname(__DIR__), dirname(__DIR__, 3), dirname(__DIR__, 2), __DIR__] as $dir) {
+        foreach (['smtp-config.php', '.smtp-config.php', 'smtp-config.php.txt', 'smtp-config'] as $name) {
             $f = $dir . '/' . $name;
             if (is_file($f)) return $f;
         }
