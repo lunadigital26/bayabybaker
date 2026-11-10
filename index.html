@@ -1047,7 +1047,12 @@ function openCart(step){
     var c=checkoutDraft;
     if(!c.name.trim()||!c.phone.trim()||!c.area.trim()){$('#coErr',d).textContent='Add your name, phone number and delivery area so we can confirm your order.';return}
     if(c.phone.replace(/\D/g,'').length<9){$('#coErr',d).textContent='Check the phone number. It needs at least 9 digits.';return}
-    step='done';showConfirmation(d,c);
+    step='done';
+    // Open WhatsApp with the order typed in, inside this tap so the browser allows it.
+    var ref='BB-'+Date.now().toString(36).slice(-5).toUpperCase(),wa='https://wa.me/'+state.settings.whatsapp+'?text='+encodeURIComponent(buildOrder(c,ref)),opened=false;
+    try{var wv=window.open(wa,'_blank');opened=!!wv}catch(err){}
+    showConfirmation(d,c,ref,opened);
+    if(!opened&&/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))setTimeout(function(){location.href=wa},2200);
   });
 }
 function buildOrder(c,ref){
@@ -1061,7 +1066,7 @@ function sendOrderEmail(d,ref,c,msg){
   var t=totals();
   box.hidden=false;box.textContent='Sending your order to Baya By Baker…';
   var items=cart.map(function(l){var p=byId(l.id);return (l.pre?'[PRE-ORDER] ':'')+p.name+(l.colour?' ('+l.colour+')':'')+(l.size?', length '+l.size+'"':'')+' x'+l.qty+' = '+ugx(p.price*l.qty)}).join('\n');
-  fetch(s.orderEndpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({
+  fetch(s.orderEndpoint,{method:'POST',keepalive:true,headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({
     _subject:'New order '+ref+' from '+c.name,_template:'box',_captcha:'false',
     Reference:ref,Name:c.name,Phone:c.phone,Delivery:c.area,Notes:c.notes||'-',Gift:c.gift?('Yes'+(c.giftTo?', for '+c.giftTo:'')+(c.giftMsg?'. Note card: "'+c.giftMsg+'"':'')):'No',Items:items,
     Subtotal:ugx(t.sub),Discount:discLines(t).map(function(x){return x[0]+' -'+ugx(x[1])}).join('; ')+(t.cpn?' [welcome code: first order only, please check]':'')||'none',Total:ugx(t.total)+' (delivery fee to confirm)'})})
@@ -1110,8 +1115,8 @@ function celebrate(name,ref){
       else ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()});
     if(el<4300)requestAnimationFrame(frame)})(t0);
 }
-function showConfirmation(d,c){
-  var ref='BB-'+Date.now().toString(36).slice(-5).toUpperCase();
+function showConfirmation(d,c,ref,opened){
+  ref=ref||'BB-'+Date.now().toString(36).slice(-5).toUpperCase();
   var msg=buildOrder(c,ref),s=state.settings;
   track('order',cart.map(function(l){return {id:l.id,qty:l.qty}}),totals().total);
   celebrate(c.name,ref);if(activeCoupon())setCoupon('');
@@ -1119,9 +1124,9 @@ function showConfirmation(d,c){
   var mail=s.email?('mailto:'+s.email+'?subject='+encodeURIComponent('Order '+ref+' – '+c.name)+'&body='+encodeURIComponent(msg)):'';
   sound('chime');
   d.innerHTML='<div class="dhead"><h2>Order <em>confirmed</em></h2><button class="x" type="button" aria-label="Close">×</button></div>'+
-   '<p style="margin:0">Your reference is <strong class="num">'+ref+'</strong>. Send it to us now so we can reserve your pieces.</p>'+
+   '<p style="margin:0">Your reference is <strong class="num">'+ref+'</strong>. We\'ve opened WhatsApp with your order typed in: <b>just tap Send</b> so we can reserve your pieces.</p>'+
    '<div class="okbox" id="mailStatus" hidden style="padding:10px 14px"></div>'+
-   '<a class="btn btn-wa" target="_blank" rel="noopener" href="'+esc(wa)+'">Send order on WhatsApp</a>'+
+   '<a class="btn btn-wa" target="_blank" rel="noopener" href="'+esc(wa)+'">'+(opened?'WhatsApp didn\'t open? Tap here':'Send order on WhatsApp')+'</a>'+
    (mail?'<a class="btn btn-ghost" href="'+esc(mail)+'">Send order by email</a>':'')+payHtml(true)+
    '<div class="okbox"><div class="row"><strong>Your order message</strong><button type="button" class="btn btn-ghost btn-sm" id="copyMsg">Copy</button></div><pre id="orderMsg">'+esc(msg)+'</pre>'+
    '<div class="copyline">WhatsApp <code>+'+esc(s.whatsapp)+'</code></div>'+(s.email?'<div class="copyline">Email <code>'+esc(s.email)+'</code></div>':'')+

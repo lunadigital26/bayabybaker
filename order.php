@@ -81,6 +81,18 @@ function send_shop_mail($subjectEnc, $body, $replyTo) {
     return @mail(SHOP_EMAIL, $subjectEnc, $body, $headers, '-f' . SHOP_EMAIL);
 }
 
+// Free WhatsApp alert to the shop phone (CallMeBot). Active only after setup-whatsapp.php saved a key.
+function wa_alert($text) {
+    $f = __DIR__ . '/.whatsapp-alert.php';
+    if (!is_file($f) || !function_exists('curl_init')) return false;
+    $c = include $f;
+    if (!is_array($c) || empty($c['phone']) || empty($c['apikey'])) return false;
+    $url = 'https://api.callmebot.com/whatsapp.php?phone=' . rawurlencode('+' . $c['phone']) . '&text=' . rawurlencode(mb_substr($text, 0, 1500)) . '&apikey=' . rawurlencode($c['apikey']);
+    $h = curl_init($url); curl_setopt_array($h, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10]);
+    curl_exec($h); $ok = curl_getinfo($h, CURLINFO_HTTP_CODE) === 200; curl_close($h);
+    return $ok;
+}
+
 // Status check for setup (reveals nothing secret)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status'])) {
     $path = smtp_config_path();
@@ -187,4 +199,5 @@ $lines = [
 $body = implode("\n", $lines);
 $subject = '=?UTF-8?B?' . base64_encode('New order ' . $ref . ' from ' . $name) . '?=';
 $ok = send_shop_mail($subject, $body, SHOP_EMAIL);
-reply($ok, $ok ? 200 : 500, $ok ? 'sent' : 'mail failed');
+$wa = wa_alert("🛍️ *New website order " . $ref . "*\n" . $name . " · " . $phone . "\nDelivery: " . oneline(field($d, 'Delivery', 200)) . "\n\n" . field($d, 'Items', 1200) . "\n\n*Total: " . oneline(field($d, 'Total', 80)) . "*\nReply: https://wa.me/" . wa_number($phone));
+reply($ok || $wa, ($ok || $wa) ? 200 : 500, $ok ? 'sent' : ($wa ? 'whatsapp only' : 'mail failed'));
