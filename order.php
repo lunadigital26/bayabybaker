@@ -16,11 +16,34 @@ function reply($ok, $code = 200, $msg = '') {
 // Signed sending: log in to the real mailbox over SMTP so mail passes SPF/DKIM and lands in the inbox.
 // The login lives OUTSIDE public_html in ../smtp-config.php (never in this repo):
 //   <?php return ['host'=>'smtp.hostinger.com','port'=>465,'user'=>'orders@bayabybaker.com','pass'=>'...'];
+function smtp_config_path() {
+    // Checked in order: next to public_html, the account home folder, then one level up.
+    foreach ([dirname(__DIR__), dirname(__DIR__, 3), dirname(__DIR__, 2)] as $dir) {
+        foreach (['smtp-config.php', 'smtp-config.php.txt', 'smtp-config'] as $name) {
+            $f = $dir . '/' . $name;
+            if (is_file($f)) return $f;
+        }
+    }
+    return null;
+}
 function smtp_config() {
-    $f = dirname(__DIR__) . '/smtp-config.php';
-    if (!is_file($f)) return null;
+    $f = smtp_config_path();
+    if (!$f) return null;
+    $raw = @file_get_contents($f);
+    if ($raw === false || strpos($raw, '<?php') === false) return null;
     $c = include $f;
     return (is_array($c) && !empty($c['user']) && !empty($c['pass'])) ? $c : null;
+}
+function smtp_login_ok($cfg) {
+    $ctx = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+    $fp = @stream_socket_client(($cfg['transport'] ?? 'ssl') . '://' . ($cfg['host'] ?? 'smtp.hostinger.com') . ':' . ($cfg['port'] ?? 465), $en, $es, 10, STREAM_CLIENT_CONNECT, $ctx);
+    if (!$fp) return 'cannot reach mail server';
+    stream_set_timeout($fp, 10);
+    $read = function () use ($fp) { $d = ''; while (($l = fgets($fp, 515)) !== false) { $d .= $l; if (strlen($l) < 4 || $l[3] === ' ') break; } return $d; };
+    $cmd = function ($c, $code) use ($fp, $read) { if ($c !== null) fwrite($fp, $c . "\r\n"); return strpos($read(), (string)$code) === 0; };
+    $ok = $cmd(null, 220) && $cmd('EHLO bayabybaker.com', 250) && $cmd('AUTH LOGIN', 334) && $cmd(base64_encode($cfg['user']), 334) && $cmd(base64_encode($cfg['pass']), 235);
+    @fwrite($fp, "QUIT\r\n"); @fclose($fp);
+    return $ok ? 'ok' : 'wrong email or password';
 }
 function smtp_send($cfg, $to, $subjectEnc, $body, $replyTo) {
     $ctx = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
@@ -60,7 +83,16 @@ function send_shop_mail($subjectEnc, $body, $replyTo) {
 
 // Status check for setup (reveals nothing secret)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status'])) {
-    reply(true, 200, smtp_config() ? 'signed sending ready' : 'signed sending not set up yet');
+    $path = smtp_config_path();
+    if (!$path) reply(false, 200, 'Config file not found. Put smtp-config.php next to the public_html folder.');
+    $cfg = smtp_config();
+    if (!$cfg) reply(false, 200, 'Config file found at ' . basename(dirname($path)) . '/' . basename($path) . ' but it is not valid. It must start with <?php and contain user and pass.');
+    // Login check at most once a minute so this page cannot be used to hammer the mail server.
+    $lock = sys_get_temp_dir() . '/bbb_smtp_status';
+    if (is_file($lock) && time() - filemtime($lock) < 60) reply(true, 200, 'Config OK. ' . @file_get_contents($lock));
+    $res = smtp_login_ok($cfg);
+    @file_put_contents($lock, 'Mailbox login: ' . $res);
+    reply($res === 'ok', 200, 'Config OK. Mailbox login: ' . $res);
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') reply(false, 405, 'POST only');
 
