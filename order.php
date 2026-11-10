@@ -123,6 +123,18 @@ function field($d, $k, $max = 2000) {
 function wa_number($p) { $d = preg_replace('/\D/', '', $p); if (strlen($d) === 10 && $d[0] === '0') $d = '256' . substr($d, 1); return $d; }
 function oneline($s) { return trim(preg_replace('/[\r\n\t]+/', ' ', $s)); }
 
+// Email list signups (welcome 5% code)
+if (field($d, 'Type', 20) === 'signup') {
+    if (field($d, 'Company', 100) !== '') reply(true, 200, 'ok'); // spam trap
+    $email = oneline(field($d, 'Email', 160));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) reply(false, 422, 'Check the email address');
+    // Saved to a hidden file the website never serves (see .htaccess), one line per signup.
+    @file_put_contents(__DIR__ . '/.subscribers.csv', gmdate('Y-m-d H:i') . ',' . str_replace([',', '"'], ' ', $email) . "\n", FILE_APPEND | LOCK_EX);
+    $body = implode("\n", ['New email signup for new drops and sales', '', 'Email: ' . $email, 'Code given: WELCOME5 (5% off abayas on the first order)', '', 'Sent from www.bayabybaker.com']);
+    send_shop_mail('=?UTF-8?B?' . base64_encode('New subscriber: ' . $email) . '?=', $body, $email);
+    reply(true, 200, 'ok');
+}
+
 // Contact form messages
 if (field($d, 'Type', 20) === 'contact') {
     if (field($d, 'Company', 100) !== '') reply(true, 200, 'sent'); // spam trap
