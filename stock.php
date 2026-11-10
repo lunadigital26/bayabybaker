@@ -14,7 +14,7 @@ if (is_file($cache) && (time() - filemtime($cache)) < CACHE_SECONDS) { readfile(
 function fetch_csv($url) {
     if (function_exists('curl_init')) {
         $c = curl_init($url);
-        curl_setopt_array($c, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 8, CURLOPT_USERAGENT => 'BayaByBaker-Stock/1.0']);
+        curl_setopt_array($c, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 20, CURLOPT_USERAGENT => 'BayaByBaker-Stock/1.0']);
         $body = curl_exec($c); $code = curl_getinfo($c, CURLINFO_HTTP_CODE); curl_close($c);
         return ($code === 200 && $body) ? $body : null;
     }
@@ -22,8 +22,19 @@ function fetch_csv($url) {
     return $body ?: null;
 }
 
-$csv = fetch_csv('https://docs.google.com/spreadsheets/d/' . SHEET_ID . '/gviz/tq?tqx=out:csv');
 $rows = [];
+// Preferred: the private Apps Script (lets the sheet be private and gives "In stock now" after website sales).
+$hookFile = __DIR__ . '/.sheets-hook.php';
+if (is_file($hookFile)) {
+    $hc = include $hookFile;
+    if (is_array($hc) && !empty($hc['url'])) {
+        $j = json_decode((string)fetch_csv($hc['url'] . '?t=' . rawurlencode($hc['token'])), true);
+        if (is_array($j) && !empty($j['ok']) && is_array($j['rows'] ?? null)) {
+            foreach ($j['rows'] as $r) $rows[] = ['name' => mb_substr((string)($r['name'] ?? ''), 0, 80), 'price' => isset($r['price']) && is_numeric($r['price']) ? (float)$r['price'] : null, 'stock' => isset($r['stock']) && is_numeric($r['stock']) ? (int)$r['stock'] : null];
+        }
+    }
+}
+$csv = $rows ? null : fetch_csv('https://docs.google.com/spreadsheets/d/' . SHEET_ID . '/gviz/tq?tqx=out:csv');
 if ($csv && stripos($csv, '<html') === false) {
     $lines = array_map('str_getcsv', preg_split('/\r\n|\n|\r/', trim($csv)));
     $hi = -1; $ni = $pi = $si = -1;
@@ -36,7 +47,7 @@ if ($csv && stripos($csv, '<html') === false) {
             foreach ($cells as $j => $v) {
                 $v = strtolower(trim($v));
                 if (strpos($v, 'price') !== false) $pi = $j;
-                if (strpos($v, 'stock') !== false || strpos($v, 'qty') !== false || strpos($v, 'quantity') !== false) $si = $j;
+                if ((strpos($v, 'stock') !== false || strpos($v, 'qty') !== false || strpos($v, 'quantity') !== false) && ($si < 0 || strpos($v, 'now') !== false)) $si = $j;
             }
             break;
         }

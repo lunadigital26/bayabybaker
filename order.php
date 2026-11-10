@@ -96,6 +96,32 @@ function wa_alert($text) {
     return $ok;
 }
 
+// Google Sheet log (orders, signups, stock). Active only after setup-sheets.php saved the script URL.
+function sheet_hook($data) {
+    $f = __DIR__ . '/.sheets-hook.php';
+    if (!is_file($f) || !function_exists('curl_init')) return false;
+    $c = include $f;
+    if (!is_array($c) || empty($c['url']) || empty($c['token'])) return false;
+    $data['t'] = $c['token'];
+    $h = curl_init($c['url']);
+    curl_setopt_array($h, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($data), CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 25]);
+    $b = curl_exec($h); curl_close($h);
+    $j = json_decode((string)$b, true);
+    foreach (glob(sys_get_temp_dir() . '/bbb_stock_*.json') ?: [] as $x) @unlink($x); // show the new stock straight away
+    return is_array($j) && !empty($j['ok']);
+}
+function order_lines($d) {
+    $out = [];
+    foreach (array_slice(is_array($d['Lines'] ?? null) ? $d['Lines'] : [], 0, 40) as $l) {
+        if (!is_array($l)) continue;
+        $key = (string)($l['key'] ?? '');
+        if (!preg_match('/^[a-z0-9| ]{1,40}$/i', $key)) $key = '';
+        $out[] = ['key' => $key, 'qty' => max(1, min(20, (int)($l['qty'] ?? 1))), 'pre' => !empty($l['pre'])];
+    }
+    return $out;
+}
+
 // Status check for setup (reveals nothing secret)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status'])) {
     $path = smtp_config_path();
@@ -147,6 +173,7 @@ if (field($d, 'Type', 20) === 'signup') {
     @file_put_contents(__DIR__ . '/.subscribers.csv', gmdate('Y-m-d H:i') . ',' . str_replace([',', '"'], ' ', $email) . "\n", FILE_APPEND | LOCK_EX);
     $body = implode("\n", ['New email signup for new drops and sales', '', 'Email: ' . $email, 'Code given: WELCOME5 (5% off abayas on the first order)', '', 'Sent from www.bayabybaker.com']);
     send_shop_mail('=?UTF-8?B?' . base64_encode('New subscriber: ' . $email) . '?=', $body, $email);
+    sheet_hook(['type' => 'signup', 'email' => $email, 'code' => 'WELCOME5']);
     reply(true, 200, 'ok');
 }
 
@@ -202,5 +229,9 @@ $lines = [
 $body = implode("\n", $lines);
 $subject = '=?UTF-8?B?' . base64_encode('New order ' . $ref . ' from ' . $name) . '?=';
 $ok = send_shop_mail($subject, $body, SHOP_EMAIL);
+$sh = sheet_hook(['type' => 'order', 'ref' => $ref, 'name' => $name, 'phone' => $phone, 'delivery' => oneline(field($d, 'Delivery', 200)),
+    'notes' => field($d, 'Notes', 1000), 'gift' => oneline(field($d, 'Gift', 400)), 'items' => field($d, 'Items', 6000),
+    'subtotal' => oneline(field($d, 'Subtotal', 60)), 'discount' => oneline(field($d, 'Discount', 200)), 'total' => oneline(field($d, 'Total', 80)),
+    'wa' => 'https://wa.me/' . wa_number($phone), 'lines' => order_lines($d)]);
 $wa = wa_alert("🛍️ *New website order " . $ref . "*\n" . $name . " · " . $phone . "\nDelivery: " . oneline(field($d, 'Delivery', 200)) . "\n\n" . field($d, 'Items', 1200) . "\n\n*Total: " . oneline(field($d, 'Total', 80)) . "*\nReply: https://wa.me/" . wa_number($phone));
-reply($ok || $wa, ($ok || $wa) ? 200 : 500, $ok ? 'sent' : ($wa ? 'whatsapp only' : 'mail failed'));
+reply($ok || $wa || $sh, ($ok || $wa || $sh) ? 200 : 500, $ok ? 'sent' : ($wa || $sh ? 'saved' : 'mail failed'));

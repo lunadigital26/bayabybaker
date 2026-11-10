@@ -1064,7 +1064,7 @@ function sendOrderEmail(d,ref,c,msg){
   fetch(s.orderEndpoint,{method:'POST',keepalive:true,headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({
     _subject:'New order '+ref+' from '+c.name,_template:'box',_captcha:'false',
     Reference:ref,Name:c.name,Phone:c.phone,Delivery:c.area,Notes:c.notes||'-',Gift:c.gift?('Yes'+(c.giftTo?', for '+c.giftTo:'')+(c.giftMsg?'. Note card: "'+c.giftMsg+'"':'')):'No',Items:items,
-    Subtotal:ugx(t.sub),Discount:discLines(t).map(function(x){return x[0]+' -'+ugx(x[1])}).join('; ')+(t.cpn?' [welcome code: first order only, please check]':'')||'none',Total:ugx(t.total)+' (delivery fee to confirm)'})})
+    Subtotal:ugx(t.sub),Discount:discLines(t).map(function(x){return x[0]+' -'+ugx(x[1])}).join('; ')+(t.cpn?' [welcome code: first order only, please check]':'')||'none',Total:ugx(t.total)+' (delivery fee to confirm)',Lines:cart.map(function(l){var p=byId(l.id);return {key:(p&&p.sheetKey)||'',qty:l.qty,pre:!!l.pre}})})})
   .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return r.ok&&String(j.success)==='true'})})
   .then(function(ok){box.innerHTML=ok?'<strong>✓ Order received by email.</strong> We\'ll confirm on WhatsApp. Sending it there too gets you a faster reply.':'We couldn\'t send your order automatically. Please send it on WhatsApp below.'})
   .catch(function(){box.textContent='We couldn\'t send your order automatically. Please send it on WhatsApp below.'});
