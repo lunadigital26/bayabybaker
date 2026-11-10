@@ -147,7 +147,7 @@ section{padding-block:30px}
 .social{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(112px + env(safe-area-inset-bottom,0px));z-index:31}
 body.owner .social{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 .sbub{position:relative;width:64px;height:64px;border-radius:50%;padding:3px;border:0;background:conic-gradient(from 200deg,var(--accent),var(--gold),var(--brand),var(--accent));box-shadow:0 14px 30px var(--shadow);animation:hover 5s ease-in-out infinite}
-.sbub video,.sbub img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:3px solid var(--surface)}
+.sbub img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:3px solid var(--surface)}
 .sbadges{position:absolute;left:-6px;bottom:-4px;display:flex}
 .sbadges i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--ink);border:1px solid var(--line);margin-right:-6px}
 .sbadges i:first-child{color:var(--accent)}
@@ -244,6 +244,11 @@ body.owner .social{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
 .absign{font-family:var(--display);font-style:italic;font-size:26px;color:var(--accent)}
 .absign small{display:block;font-family:var(--body);font-style:normal;font-size:13px;color:var(--muted);letter-spacing:.06em}
 @media (max-width:860px){.about{grid-template-columns:1fr;gap:40px}.abinset{right:-6px}.abvals{grid-template-columns:1fr}}
+@media (max-width:640px){.pd .arch{height:44vh!important}
+.buyrow{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));margin:0 -18px calc(-20px - env(safe-area-inset-bottom,0px));padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 24px var(--shadow);z-index:2;flex-wrap:nowrap}
+.buyrow .btn{flex:1}
+.modal .pd .dhead .x{position:absolute;top:12px;right:12px;z-index:3;background:var(--surface);box-shadow:0 6px 16px var(--shadow)}}
+main{overflow-x:clip}
 .howgrid{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:28px;align-items:center}
 .howgrid .steps{grid-template-columns:1fr}
 @media (max-width:720px){.howgrid{grid-template-columns:1fr}.howgrid .arch{max-width:280px;justify-self:center}}
@@ -521,7 +526,7 @@ body.owner{padding-bottom:70px}
   <div class="fcol"><h4>Get in touch</h4><a id="footWa" target="_blank" rel="noopener"></a><span id="footEmail"></span></div>
 </div><div class="wrap fbar"><span>© <span id="fyear"></span> Baya By Baker</span><span><a href="privacy.html">Privacy</a> · <button type="button" class="linkbtn" id="cookieSettings">Cookie settings</button></span></div></footer>
 <div class="social" id="social" hidden>
-  <button class="sbub" id="sbub" type="button" aria-expanded="false" aria-label="See our Instagram and TikTok"><video id="sbVid" muted loop playsinline preload="metadata"></video><span class="sbadges"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></i><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3h3a4.5 4.5 0 0 0 3.5 3.6v3.1a7.4 7.4 0 0 1-3.5-1V15a6 6 0 1 1-6-6h.5v3.2h-.5a2.8 2.8 0 1 0 2.8 2.8z"/></svg></i></span></button>
+  <button class="sbub" id="sbub" type="button" aria-expanded="false" aria-label="See our Instagram and TikTok"><img id="sbImg" alt=""><span class="sbadges"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></i><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3h3a4.5 4.5 0 0 0 3.5 3.6v3.1a7.4 7.4 0 0 1-3.5-1V15a6 6 0 1 1-6-6h.5v3.2h-.5a2.8 2.8 0 1 0 2.8 2.8z"/></svg></i></span></button>
   <div class="spanel" id="spanel">
     <div class="phead"><strong>Follow <em>along</em></strong><button class="qmin" id="sclose" type="button" aria-label="Close">×</button></div>
     <a class="stt" id="sttLink" target="_blank" rel="noopener"><video id="spVid" muted loop playsinline preload="metadata"></video><span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3h3a4.5 4.5 0 0 0 3.5 3.6v3.1a7.4 7.4 0 0 1-3.5-1V15a6 6 0 1 1-6-6h.5v3.2h-.5a2.8 2.8 0 1 0 2.8 2.8z"/></svg><b id="sttName"></b></span></a>
@@ -719,7 +724,8 @@ function renderSocial(){
   var s=state.settings,ig=state.insta||{handle:'',posts:[]},w=$('#social');
   w.hidden=!(ig.handle||s.tiktok);if(w.hidden)return;
   var igUrl='https://www.instagram.com/'+encodeURIComponent(ig.handle)+'/',ttUrl='https://www.tiktok.com/@'+encodeURIComponent(s.tiktok||'');
-  [['#sbVid'],['#spVid']].forEach(function(x){var v=$(x[0]);if(s.heroVideo&&v.getAttribute('data-set')!=='1'){v.src=s.heroVideo;v.poster=s.heroPoster||'';v.setAttribute('data-set','1');if(!reduce){v.autoplay=true;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}}});
+  var sbi=$('#sbImg');if(sbi&&!sbi.getAttribute('src'))sbi.src=s.heroPoster||s.hero||'';
+  var spv=$('#spVid');if(spv&&s.heroPoster)spv.poster=s.heroPoster;
   var tl=$('#sttLink');tl.hidden=!s.tiktok||!s.heroVideo;tl.href=ttUrl;$('#sttName').textContent='Watch on TikTok @'+(s.tiktok||'');
   $('#sigGrid').innerHTML=ig.handle?ig.posts.slice(0,3).map(function(p){return '<a target="_blank" rel="noopener" href="'+esc(p.url||igUrl)+'"><img loading="lazy" src="'+esc(p.img)+'" alt="Instagram post"></a>'}).join(''):'';
   var a=$('#sIg');a.hidden=!ig.handle;a.href=igUrl;$('#sIgName').textContent='@'+ig.handle;
@@ -803,7 +809,7 @@ function openProduct(id){
     (detail(p,true)?'<div class="meta">'+esc(detail(p,true))+'</div>':'')+(p.desc?'<p style="margin:0">'+esc(p.desc)+'</p>':'')+(p.ref?'<p class="meta" style="margin:0">The photo shows a similar style. Ask us on WhatsApp for a photo or video of the actual piece.</p>':'')+
     (g&&g.length>1?'<div class="meta" style="font-weight:800">Colour: <span id="pdCol" style="color:var(--ink)"></span></div>':'')+
     (p.sizes.length?'<div><div class="meta" style="margin-bottom:6px;font-weight:800">Length (inches)</div><div class="sizes" id="pdSizes"></div></div>':'')+
-    (p.qty>0?'<div class="row"><div class="qty"><button type="button" data-q="-1" aria-label="Fewer">−</button><span id="pdQty" class="num">1</span><button type="button" data-q="1" aria-label="More">+</button></div><button class="btn btn-primary" id="pdAdd" type="button">Drop in basket</button></div>':'<p class="err" style="margin:0">This piece is sold out. Message us on WhatsApp to hear when it is back.</p>')+
+    (p.qty>0?'<div class="row buyrow"><div class="qty"><button type="button" data-q="-1" aria-label="Fewer">−</button><span id="pdQty" class="num">1</span><button type="button" data-q="1" aria-label="More">+</button></div><button class="btn btn-primary" id="pdAdd" type="button">Drop in basket</button></div>':'<p class="err" style="margin:0">This piece is sold out. Message us on WhatsApp to hear when it is back.</p>')+
     '</div></div>','modal');
   function paint(){
     var sz=m.querySelector('#pdSizes');
@@ -1187,7 +1193,7 @@ document.addEventListener('click',function(e){
   else if(t.dataset.combo){addCombo(t.dataset.combo,t)}
   else if(t.id==='basket'){openCart('bag')}
   else if(t.id==='soundBtn'){muted=!muted;try{localStorage.setItem('bb-mute',muted?'1':'0')}catch(err){}paintSound();if(!muted)sound('pop')}
-  else if(t.id==='sbub'){var w=$('#social'),o=!w.classList.contains('open');w.classList.toggle('open',o);t.setAttribute('aria-expanded',o);if(o)sound('open')}
+  else if(t.id==='sbub'){var w=$('#social'),o=!w.classList.contains('open');w.classList.toggle('open',o);t.setAttribute('aria-expanded',o);if(o){sound('open');spLoad()}}
   else if(t.id==='sclose'){$('#social').classList.remove('open');$('#sbub').setAttribute('aria-expanded','false')}
   else if(t.id==='qmin'){setQuoteMin(true)}
   else if(t.id==='qopen'){setQuoteMin(false)}
@@ -1261,6 +1267,8 @@ document.addEventListener('click',function(e){
   if(e.target.closest('#cookieSettings'))showConsent(true);
 });
 
+function spLoad(){var v=$('#spVid');if(v&&state.settings.heroVideo&&!v.getAttribute('src')){v.src=state.settings.heroVideo}if(v&&!reduce){var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}}
+(function(){var w=$('#social');if(w)w.addEventListener('mouseenter',spLoad)})();
 cleanCart();paintSound();paintQuote();setQuoteMin(qMin);renderAll();showConsent(false);
 if('IntersectionObserver' in window){var seen=new Set();var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)seen.add(e.target);else seen.delete(e.target)});var away=seen.size>0;$('#quote').classList.toggle('away',away);$('#qopen').classList.toggle('away',away)},{threshold:0.05});['#contact','footer'].forEach(function(q){var el=$(q);if(el)io.observe(el)})}
 if(!reduce)qTimer=setInterval(nextQuote,7000);else qTimer=setInterval(nextQuote,12000);
