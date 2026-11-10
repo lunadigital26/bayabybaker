@@ -85,6 +85,7 @@ $lines = [
     'Phone / WhatsApp: ' . $phone,
     'Delivery: ' . oneline(field($d, 'Delivery', 200)),
     'Notes: ' . (field($d, 'Notes', 1000) ?: '-'),
+    'Gift: ' . (oneline(field($d, 'Gift', 400)) ?: 'No'),
     '',
     'Items:',
     field($d, 'Items', 6000),
