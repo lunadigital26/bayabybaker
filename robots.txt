@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /order.php
+Disallow: /setup-mail.php
 Sitemap: https://www.bayabybaker.com/sitemap.xml
