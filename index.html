@@ -268,6 +268,9 @@ main{overflow-x:clip}
 .upsell .dots{display:flex;flex-wrap:wrap;gap:8px}
 .upsell .dots button{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer}
 .upsell .dots button:hover{transform:scale(1.12)}
+/* phones: 16px+ in every field so iOS never auto-zooms when typing */
+@media (max-width:900px){input,select,textarea,.f input,.f select,.f textarea,.line select,.contact .f input,.contact .f select,.contact .f textarea{font-size:16px!important}}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .howgrid{display:grid;grid-template-columns:minmax(0,320px) 1fr;gap:28px;align-items:center}
 .howgrid .steps{grid-template-columns:1fr}
 @media (max-width:720px){.howgrid{grid-template-columns:1fr}.howgrid .arch{max-width:280px;justify-self:center}}
