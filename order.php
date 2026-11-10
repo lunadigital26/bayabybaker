@@ -52,14 +52,17 @@ function smtp_send($cfg, $to, $subjectEnc, $body, $replyTo) {
     stream_set_timeout($fp, 15);
     $read = function () use ($fp) { $d = ''; while (($l = fgets($fp, 515)) !== false) { $d .= $l; if (strlen($l) < 4 || $l[3] === ' ') break; } return $d; };
     $cmd = function ($c, $code) use ($fp, $read) { if ($c !== null) fwrite($fp, $c . "\r\n"); return strpos($read(), (string)$code) === 0; };
-    $from = $cfg['user'];
+    // Log in as orders@ but send FROM the website@ alias: mail "from yourself to yourself" gets junked.
+    $from = $cfg['from'] ?? 'website@bayabybaker.com';
     $ok = $cmd(null, 220) && $cmd('EHLO bayabybaker.com', 250) && $cmd('AUTH LOGIN', 334)
-        && $cmd(base64_encode($from), 334) && $cmd(base64_encode($cfg['pass']), 235)
-        && $cmd('MAIL FROM:<' . $from . '>', 250) && $cmd('RCPT TO:<' . $to . '>', 250) && $cmd('DATA', 354);
+        && $cmd(base64_encode($cfg['user']), 334) && $cmd(base64_encode($cfg['pass']), 235);
+    if ($ok && !$cmd('MAIL FROM:<' . $from . '>', 250)) { $cmd('RSET', 250); $from = $cfg['user']; $ok = $cmd('MAIL FROM:<' . $from . '>', 250); }
+    $ok = $ok && $cmd('RCPT TO:<' . $to . '>', 250) && $cmd('DATA', 354);
     if ($ok) {
         $h = [
             'Date: ' . date('r'),
             'From: =?UTF-8?B?' . base64_encode('Baya By Baker Website') . '?= <' . $from . '>',
+            'Sender: <' . $from . '>',
             'To: <' . $to . '>',
             'Reply-To: ' . $replyTo,
             'Subject: ' . $subjectEnc,
@@ -77,7 +80,7 @@ function smtp_send($cfg, $to, $subjectEnc, $body, $replyTo) {
 function send_shop_mail($subjectEnc, $body, $replyTo) {
     $cfg = smtp_config();
     if ($cfg && smtp_send($cfg, SHOP_EMAIL, $subjectEnc, $body, $replyTo)) return true;
-    $headers = implode("\r\n", ['From: Baya By Baker Website <' . SHOP_EMAIL . '>', 'Reply-To: ' . $replyTo, 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: 8bit']);
+    $headers = implode("\r\n", ['From: Baya By Baker Website <website@bayabybaker.com>', 'Reply-To: ' . $replyTo, 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: 8bit']);
     return @mail(SHOP_EMAIL, $subjectEnc, $body, $headers, '-f' . SHOP_EMAIL);
 }
 
