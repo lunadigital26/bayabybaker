@@ -75,6 +75,31 @@ nav.links a:hover{color:var(--accent)}
 .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;width:38px;height:38px;display:grid;place-items:center;color:var(--ink)}
 .iconbtn svg{width:18px;height:18px}
 @media (max-width:700px){nav.links{display:none}.iconbtn{margin-left:auto}}
+.menubtn{display:none;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;height:38px;padding:0 14px 0 12px;font-weight:800;font-size:14px;cursor:pointer}
+.menubtn svg{width:18px;height:18px;transition:transform .25s}
+.basket.empty .badge{display:none}
+.mpanel>div{min-width:0}
+@media (max-width:400px){.menubtn{padding:0;width:38px;justify-content:center}.menubtn .mtxt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.mcats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.mcats button{font-size:12px}}
+body.menuopen .basket,body.menuopen .quote,body.menuopen .qopen{opacity:0;pointer-events:none}
+@media (max-width:900px){nav.links{display:none}.menubtn{display:inline-flex;margin-left:auto}.top .iconbtn{margin-left:8px}}
+.mmenu{position:fixed;left:0;right:0;top:var(--mtop,64px);bottom:0;z-index:19;background:rgba(18,12,16,.35);opacity:0;pointer-events:none;transition:opacity .2s}
+.mmenu.open{opacity:1;pointer-events:auto}
+.mpanel{background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 18px 40px var(--shadow);max-height:100%;overflow:auto;overscroll-behavior:contain;padding:16px max(16px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(-12px);transition:transform .25s;display:grid;gap:18px}
+.mmenu.open .mpanel{transform:none}
+.mpanel h4{margin:0 0 8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mcats{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.mcats button{display:grid;gap:6px;border:0;background:none;padding:0;text-align:left;cursor:pointer;color:var(--ink);font-weight:800;font-size:13px}
+.mcats img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:999px 999px 14px 14px / 40% 40% 14px 14px;border:1px solid var(--line);background:var(--soft)}
+.mcats small{display:block;font-weight:600;color:var(--muted);font-size:11px}
+.mlinks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mlinks a,.mlinks button{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink);text-decoration:none;font-weight:800;font-size:14px;cursor:pointer;text-align:left}
+.mlinks .hl{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.menubtn{position:relative}
+.menubtn.dot::after{content:"";position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#E77A9C;border:2px solid var(--bg)}
+.basket.empty .tot{display:none}
+section[id],.hjblock{scroll-margin-top:calc(72px + env(safe-area-inset-top,0px))}
+@media (max-width:900px){.social,.wtab{display:none!important}.basket .bowl{width:64px;height:64px;padding-bottom:11px}.basket svg{width:38px;height:33px}.basket .tot{padding:7px 12px;font-size:13px}}
+
 
 /* hero */
 .hero{position:relative;padding-block:40px 24px;display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
@@ -400,7 +425,9 @@ footer .fgrid{padding-block:40px 24px;display:grid;grid-template-columns:1.4fr 1
 #footEmail{display:grid;gap:8px}
 footer .fbar{padding-block:14px 120px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px}
 footer .fbar .linkbtn{font-size:13px}
-@media (max-width:720px){footer .fgrid{grid-template-columns:1fr 1fr}.fbrand{grid-column:1/-1}}
+@media (max-width:720px){footer .fgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.fbrand{grid-column:1/-1}}
+@media (max-width:420px){footer .fgrid{grid-template-columns:minmax(0,1fr)}}
+.fcol a,.fcol span{overflow-wrap:anywhere}
 .quote.away,.qopen.away{opacity:0;pointer-events:none;transform:translateY(20px)}
 .quote,.qopen{transition:opacity .35s,transform .35s}
 footer a{color:var(--ink)}
@@ -510,8 +537,10 @@ body.owner{padding-bottom:70px}
 <header class="top"><div class="wrap">
   <a class="brand" href="/" id="brand" aria-label="Baya By Baker home"></a>
   <nav class="links"><a href="#about">About</a><a href="#combos">Trio offers</a><a href="#shop">Shop</a><a href="#hijabs">Hijabs</a><a href="#reviews">Reviews</a><a href="#insta">Instagram</a><a href="#how">How to order</a><a href="#contact">Contact</a></nav>
+  <button class="menubtn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mMenu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="mtxt">Menu</span></button>
   <button class="iconbtn" id="soundBtn" type="button" aria-label="Sound on"></button>
 </div></header>
+<div class="mmenu" id="mMenu" aria-hidden="true"><nav class="mpanel" aria-label="Menu" id="mPanel"></nav></div>
 <main>
   <div class="wrap hero">
     <div>
@@ -862,7 +891,7 @@ function tween(el,from,to){
 }
 function renderBasket(animate){
   var t=totals();
-  $('#bCount').textContent=t.items;
+  $('#bCount').textContent=t.items;$('#basket').classList.toggle('empty',!t.items);menuDot();
   var picks=[];cart.forEach(function(l){var p=byId(l.id);if(p&&picks.length<3)picks.push(l)});
   $('#bPicks').innerHTML=picks.map(function(l){return '<img src="'+esc(lineImg(l))+'" alt="">'}).join('');
   var el=$('#bTotal');
@@ -1457,9 +1486,45 @@ function armWelcome(){
   window.addEventListener('scroll',function sc(){if(scrollY>document.documentElement.scrollHeight*.4){window.removeEventListener('scroll',sc);setTimeout(fire,800)}},{passive:true});
   document.addEventListener('mouseout',function(e){if(!e.relatedTarget&&e.clientY<8)fire()});
 }
+/* phone menu */
+function renderMenu(){
+  var abs=state.products.filter(function(p){return !p.addon});
+  var cats=['All'].concat(CATS.filter(function(c){return abs.some(function(p){return p.cat===c})}));
+  var hj=addons();
+  var rack=((gal(byId('b1'))||[]).filter(function(x){return /emerald/i.test(x.label)})[0]||{}).img;
+  var tile=function(c){var list=c==='All'?abs:abs.filter(function(p){return p.cat===c});var p=list[0];return '<button type="button" data-mcat="'+esc(c)+'"><img loading="lazy" src="'+esc(c==='All'&&rack?rack:(p?imgOf(p):''))+'" alt=""><span>'+(c==='All'?'All abayas':esc(c))+'<small>'+list.length+' style'+(list.length>1?'s':'')+'</small></span></button>'};
+  $('#mPanel').innerHTML='<div><h4>Shop by style</h4><div class="mcats">'+cats.map(tile).join('')+'</div></div>'+
+    (hj.length?'<div><h4>Hijabs</h4><div class="mcats">'+hj.map(function(p){var g=gal(p)||[];return '<button type="button" data-mgo="hj-'+esc(p.slug)+'"><img loading="lazy" src="'+esc(g[0]?g[0].img:'')+'" alt=""><span>'+esc(p.name)+'<small>from '+ugx(p.bundlePrice||p.price)+'</small></span></button>'}).join('')+'</div></div>':'')+
+    '<div><h4>Explore</h4><div class="mlinks"><a href="#combos">✨ Trio offers</a><a href="#shop">🛍️ All pieces</a><a href="#reviews">⭐ Reviews</a><a href="#insta">📸 Instagram</a><a href="#about">🌸 Our story</a><a href="#how">📦 How to order</a><a href="#contact">💬 Contact</a><button type="button" id="mBasket">🧺 My basket</button>'+
+    ((state.insta||{}).handle?'<a target="_blank" rel="noopener" href="https://www.instagram.com/'+encodeURIComponent(state.insta.handle)+'/">Instagram</a>':'')+(state.settings.tiktok?'<a target="_blank" rel="noopener" href="https://www.tiktok.com/@'+encodeURIComponent(state.settings.tiktok)+'">TikTok</a>':'')+
+    (state.settings.welcome&&!activeCoupon()?'<button type="button" class="hl" id="mWelcome" style="grid-column:1/-1">🎁 Get '+state.settings.welcome.pct+'% off your first order</button>':'')+
+    '<a class="hl" style="grid-column:1/-1;background:#25D366;border-color:#25D366;color:#fff" target="_blank" rel="noopener" href="https://wa.me/'+esc(state.settings.whatsapp)+'">WhatsApp us · fastest reply</a></div></div>';
+}
+function menuDot(){var b=$('#menuBtn');if(b)b.classList.toggle('dot',!!state.settings.welcome&&!activeCoupon())}
+function setMenu(open){
+  var m=$('#mMenu'),b=$('#menuBtn');if(!m||!b)return;
+  if(open){var hd=document.querySelector('header.top');m.style.setProperty('--mtop',Math.round(hd.getBoundingClientRect().bottom)+'px');renderMenu();sound('open')}
+  m.classList.toggle('open',open);m.setAttribute('aria-hidden',String(!open));b.setAttribute('aria-expanded',String(open));document.body.classList.toggle('menuopen',open);
+  b.querySelector('path').setAttribute('d',open?'M6 6l12 12M18 6 6 18':'M4 7h16M4 12h16M4 17h10');b.querySelector('.mtxt').textContent=open?'Close':'Menu';b.setAttribute('aria-label',open?'Close menu':'Open menu');
+}
+function armMenu(){
+  var b=$('#menuBtn'),m=$('#mMenu');if(!b||!m)return;
+  b.addEventListener('click',function(){setMenu(!m.classList.contains('open'))});
+  m.addEventListener('click',function(e){
+    if(e.target===m)return setMenu(false);
+    var t=e.target.closest('a,button');if(!t)return;
+    if(t.dataset.mcat){ui.cat=t.dataset.mcat;renderFilters();renderGrid();setMenu(false);var s=$('#shop');if(s)s.scrollIntoView({behavior:reduce?'auto':'smooth'});return}
+    if(t.dataset.mgo){setMenu(false);var el=document.getElementById(t.dataset.mgo);if(el)el.scrollIntoView({behavior:reduce?'auto':'smooth'});return}
+    if(t.id==='mBasket'){setMenu(false);openCart();return}
+    if(t.id==='mWelcome'){setMenu(false);openWelcome();return}
+    setMenu(false);
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&m.classList.contains('open'))setMenu(false)});
+  window.addEventListener('resize',function(){if(innerWidth>900&&m.classList.contains('open'))setMenu(false)});
+}
 function route(){var h=decodeURIComponent(location.hash.slice(1));if(!h)return;var p=bySlug(h);if(p&&!p.addon){openProduct(p.id)}else if(p&&p.addon){var el=$('#hijabs');if(el)el.scrollIntoView()}}
 window.addEventListener('hashchange',route);
-cleanCart();paintSound();paintQuote();setQuoteMin(qMin);renderAll();showConsent(false);setTimeout(route,60);loadSheet();armWelcome();
+cleanCart();paintSound();paintQuote();setQuoteMin(qMin);renderAll();showConsent(false);setTimeout(route,60);loadSheet();armWelcome();armMenu();
 if('IntersectionObserver' in window){var seen=new Set();var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)seen.add(e.target);else seen.delete(e.target)});var away=seen.size>0;$('#quote').classList.toggle('away',away);$('#qopen').classList.toggle('away',away)},{threshold:0.05});['#contact','footer'].forEach(function(q){var el=$(q);if(el)io.observe(el)})}
 if(!reduce)qTimer=setInterval(nextQuote,7000);else qTimer=setInterval(nextQuote,12000);
 
