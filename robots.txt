@@ -4,4 +4,5 @@ Disallow: /order.php
 Disallow: /setup-mail.php
 Disallow: /setup-whatsapp.php
 Disallow: /setup-sheets.php
+Disallow: /preview.html
 Sitemap: https://www.bayabybaker.com/sitemap.xml
