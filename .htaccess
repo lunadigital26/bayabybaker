@@ -5,3 +5,25 @@
 <FilesMatch "^\.">
   Require all denied
 </FilesMatch>
+
+# One hop to the real address (no chain of redirects)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} ^bayabybaker\.com$ [NC]
+  RewriteRule ^ https://www.bayabybaker.com%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Compress text files
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/json image/svg+xml application/xml
+</IfModule>
+
+# Browser caching: pages always fresh, icons for a week (images in /assets are cached for a year by assets/.htaccess)
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|php)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(png|jpg|ico|webmanifest)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
